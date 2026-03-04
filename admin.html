@@ -1,0 +1,302 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRCA Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ADMIN.CSS">
+</head>
+<body>
+  <header class="admin-header">
+    <div>
+      <p class="kicker">Grace Redemption Christian Assembly</p>
+      <h1>Admin Dashboard</h1>
+      <p class="subtitle">Post updates here and they will show on the main website instantly.</p>
+    </div>
+    <div class="header-actions">
+      <a href="FRONT.HTML" class="btn btn-outline">Back to Main Site</a>
+      <button id="clear-all-btn" class="btn btn-danger" type="button">Clear All Posts</button>
+    </div>
+  </header>
+
+  <main class="admin-layout">
+    <section class="panel">
+      <h2 id="update-form-title">Create Update</h2>
+      <form id="update-form" class="admin-form">
+        <label>
+          Title
+          <input type="text" id="title" name="title" placeholder="e.g. Special Revival Night" required>
+        </label>
+
+        <label>
+          Description
+          <textarea id="description" name="description" rows="5" placeholder="Write the update details..." required></textarea>
+        </label>
+
+        <div class="field-row">
+          <label>
+            Date
+            <input type="date" id="date" name="date">
+          </label>
+
+          <label>
+            Time
+            <input type="time" id="time" name="time">
+          </label>
+        </div>
+
+        <label>
+          Location
+          <input type="text" id="location" name="location" placeholder="e.g. Main Sanctuary">
+        </label>
+
+        <div class="form-actions">
+          <button id="update-submit-btn" type="submit" class="btn btn-primary">Publish Update</button>
+          <button id="cancel-edit-btn" type="button" class="btn btn-outline hidden">Cancel Edit</button>
+        </div>
+      </form>
+      <p id="form-message" class="form-message" aria-live="polite"></p>
+    </section>
+
+    <section class="panel">
+      <h2 id="event-form-title">Create Upcoming Event</h2>
+      <form id="event-form" class="admin-form">
+        <label>
+          Event Title
+          <input type="text" id="event-title" name="event-title" placeholder="e.g. Sunday Worship Service" required>
+        </label>
+
+        <label>
+          Description
+          <textarea id="event-description" name="event-description" rows="4" placeholder="Write event details..." required></textarea>
+        </label>
+
+        <label>
+          Date Label
+          <input type="text" id="event-date-label" name="event-date-label" placeholder="e.g. Sunday, Feb 23 · 9:00 AM" required>
+        </label>
+
+        <div class="field-row">
+          <label>
+            Time Range
+            <input type="text" id="event-time-range" name="event-time-range" placeholder="e.g. 9:00 AM – 12:00 PM" required>
+          </label>
+
+          <label>
+            Location
+            <input type="text" id="event-location" name="event-location" placeholder="e.g. Main Sanctuary" required>
+          </label>
+        </div>
+
+        <label>
+          Banner Theme
+          <select id="event-theme" name="event-theme" required>
+            <option value="gold">Gold</option>
+            <option value="red">Red</option>
+            <option value="blue">Blue</option>
+          </select>
+        </label>
+
+        <div class="form-actions">
+          <button id="event-submit-btn" type="submit" class="btn btn-primary">Add Event</button>
+          <button id="cancel-event-edit-btn" type="button" class="btn btn-outline hidden">Cancel Edit</button>
+        </div>
+      </form>
+      <p id="event-message" class="form-message" aria-live="polite"></p>
+
+      <div class="admin-dropdown">
+        <button id="admin-events-toggle" class="admin-dropdown-trigger" type="button" data-admin-dropdown-target="admin-events-content" aria-expanded="false">
+          <span>Upcoming Events List</span>
+          <span class="dropdown-icon">+</span>
+        </button>
+        <div id="admin-events-content" class="admin-dropdown-content" hidden>
+          <p id="events-empty" class="empty-state">No events yet.</p>
+          <div id="admin-events-list" class="admin-updates"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Live Service Control</h2>
+      <p class="panel-note">Add one or more active links. Watch Live will open a banner listing all links.</p>
+      <form id="live-form" class="admin-form">
+        <label>
+          Link Label (Optional)
+          <input type="text" id="live-label" name="live-label" placeholder="e.g. YouTube Main Stream">
+        </label>
+
+        <label>
+          Live Stream URL
+          <input type="url" id="live-url" name="live-url" placeholder="https://youtube.com/live/..." required>
+        </label>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Add Live Link</button>
+          <button id="end-live-btn" type="button" class="btn btn-danger">End Service / Clear All Links</button>
+        </div>
+      </form>
+      <p id="live-message" class="form-message" aria-live="polite"></p>
+      <p id="live-status" class="status-text">Status: COMING SOON</p>
+      <div class="admin-dropdown">
+        <button id="admin-live-links-toggle" class="admin-dropdown-trigger" type="button" data-admin-dropdown-target="admin-live-links-content" aria-expanded="false">
+          <span>Active Live Links</span>
+          <span class="dropdown-icon">+</span>
+        </button>
+        <div id="admin-live-links-content" class="admin-dropdown-content" hidden>
+          <p id="live-links-empty" class="empty-state">No active live links yet.</p>
+          <div id="live-links-admin-list" class="admin-updates"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Previous Services</h2>
+      <p class="panel-note">Post sermon links with title and date for members to watch later.</p>
+      <form id="previous-service-form" class="admin-form">
+        <label>
+          Sermon Title
+          <input type="text" id="previous-service-title" name="previous-service-title" placeholder="e.g. Walking in Grace" required>
+        </label>
+
+        <label>
+          Sermon Date
+          <input type="date" id="previous-service-date" name="previous-service-date" required>
+        </label>
+
+        <label>
+          Sermon Link
+          <input type="url" id="previous-service-url" name="previous-service-url" placeholder="https://youtube.com/..." required>
+        </label>
+
+        <div class="form-actions">
+          <button id="previous-service-submit-btn" type="submit" class="btn btn-primary">Add Service</button>
+          <button id="cancel-previous-service-edit-btn" type="button" class="btn btn-outline hidden">Cancel Edit</button>
+        </div>
+      </form>
+      <p id="previous-service-message" class="form-message" aria-live="polite"></p>
+
+      <div class="admin-dropdown">
+        <button id="admin-previous-services-toggle" class="admin-dropdown-trigger" type="button" data-admin-dropdown-target="admin-previous-services-content" aria-expanded="false">
+          <span>Saved Previous Services</span>
+          <span class="dropdown-icon">+</span>
+        </button>
+        <div id="admin-previous-services-content" class="admin-dropdown-content" hidden>
+          <p id="admin-previous-services-empty" class="empty-state">No previous services posted yet.</p>
+          <div id="admin-previous-services-list" class="admin-updates"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Leadership Profiles</h2>
+      <p class="panel-note">Upload pastor and executive images, then update their text from one place.</p>
+      <form id="leadership-form" class="admin-form">
+        <label>
+          Select Profile
+          <select id="profile-id" name="profile-id" required>
+            <option value="senior_pastor">Senior Pastor</option>
+            <option value="assistant_1">Assistant 1</option>
+            <option value="assistant_2">Assistant 2</option>
+            <option value="assistant_3">Assistant 3</option>
+            <option value="executive_1">Executive 1</option>
+            <option value="executive_2">Executive 2</option>
+            <option value="executive_3">Executive 3</option>
+            <option value="executive_4">Executive 4</option>
+          </select>
+        </label>
+
+        <label>
+          Role
+          <input type="text" id="lead-role" name="lead-role" placeholder="e.g. Senior Pastor">
+        </label>
+
+        <label>
+          Name
+          <input type="text" id="lead-name" name="lead-name" placeholder="e.g. Pastor John Doe">
+        </label>
+
+        <label>
+          Bio / Description
+          <textarea id="lead-bio" name="lead-bio" rows="4" placeholder="Write profile details..."></textarea>
+        </label>
+
+        <label>
+          Extra Text (Optional)
+          <input type="text" id="lead-verse" name="lead-verse" placeholder='e.g. "For God so loved the world..." — John 3:16'>
+        </label>
+
+        <label>
+          Upload Image
+          <input type="file" id="lead-image" name="lead-image" accept="image/*">
+        </label>
+
+        <div class="image-preview-wrap">
+          <img id="leadership-preview" alt="Profile preview" hidden>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save Profile</button>
+          <button id="clear-profile-image-btn" type="button" class="btn btn-outline">Remove Saved Image</button>
+        </div>
+      </form>
+      <p id="leadership-message" class="form-message" aria-live="polite"></p>
+      <div class="admin-dropdown">
+        <button id="admin-leadership-toggle" class="admin-dropdown-trigger" type="button" data-admin-dropdown-target="admin-leadership-content" aria-expanded="false">
+          <span>Pastors &amp; Executives</span>
+          <span class="dropdown-icon">+</span>
+        </button>
+        <div id="admin-leadership-content" class="admin-dropdown-content" hidden>
+          <div class="leadership-list-wrap">
+            <h3 class="subheading">Saved Leadership Entries</h3>
+            <p id="leadership-empty" class="empty-state">No leadership profile saved yet.</p>
+            <div id="leadership-list" class="leadership-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Create Executive</h2>
+      <p class="panel-note">Add additional executives beyond the default slots.</p>
+      <form id="new-executive-form" class="admin-form">
+        <label>
+          Executive Role
+          <input type="text" id="new-exec-role" name="new-exec-role" placeholder="e.g. Missions Coordinator" required>
+        </label>
+
+        <label>
+          Executive Name
+          <input type="text" id="new-exec-name" name="new-exec-name" placeholder="e.g. Mr. Daniel [Surname]" required>
+        </label>
+
+        <label>
+          Bio / Description
+          <textarea id="new-exec-bio" name="new-exec-bio" rows="4" placeholder="Write executive details..." required></textarea>
+        </label>
+
+        <label>
+          Extra Text (Optional)
+          <input type="text" id="new-exec-verse" name="new-exec-verse" placeholder='e.g. "Serve the Lord..."'>
+        </label>
+
+        <label>
+          Upload Image (Optional)
+          <input type="file" id="new-exec-image" name="new-exec-image" accept="image/*">
+        </label>
+
+        <button type="submit" class="btn btn-primary">Create Executive</button>
+      </form>
+      <p id="new-executive-message" class="form-message" aria-live="polite"></p>
+    </section>
+
+    <section class="panel panel-wide">
+      <h2>Published Updates</h2>
+      <p id="admin-empty" class="empty-state">No updates posted yet.</p>
+      <div id="admin-updates-list" class="admin-updates"></div>
+    </section>
+  </main>
+
+  <script src="ADMIN.JS"></script>
+</body>
+</html>
