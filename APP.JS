@@ -1,10 +1,10 @@
-ï»¿const DEFAULT_EVENTS = [
+const DEFAULT_EVENTS = [
   {
     id: "default_event_1",
     title: "Sunday Worship Service",
     description:
       "Join us for an uplifting time of worship, prayer, and the Word of God. All are welcome - bring a friend!",
-    dateLabel: "Sunday, Feb 23 Â· 9:00 AM",
+    dateLabel: "Sunday, Feb 23 · 9:00 AM",
     timeRange: "9:00 AM - 12:00 PM",
     location: "Main Sanctuary",
     theme: "gold",
@@ -15,7 +15,7 @@
     title: "Midweek Prayer & Bible Study",
     description:
       "Deepen your faith and connect with the church family through prayer, fellowship, and in-depth scripture study.",
-    dateLabel: "Wednesday, Feb 26 Â· 6:00 PM",
+    dateLabel: "Wednesday, Feb 26 · 6:00 PM",
     timeRange: "6:00 PM - 8:00 PM",
     location: "Fellowship Hall",
     theme: "red",
@@ -26,7 +26,7 @@
     title: "Annual Church Thanksgiving & Convention",
     description:
       "A special gathering to celebrate God's faithfulness to Grace Redemption Christian Assembly. Guest ministers, music, and more.",
-    dateLabel: "Saturday, Mar 8 Â· 10:00 AM",
+    dateLabel: "Saturday, Mar 8 · 10:00 AM",
     timeRange: "10:00 AM - 6:00 PM",
     location: "Church Auditorium",
     theme: "blue",
@@ -81,7 +81,7 @@ const DEFAULT_PROFILES = {
     role: "Senior Pastor",
     name: "Pastor [Full Name]",
     bio: "A servant of God with a heart for the lost and a vision for community transformation. Replace this text with the Senior Pastor's biography, calling, and ministry vision.",
-    verse: '"For God so loved the world..." â€” John 3:16',
+    verse: '"For God so loved the world..." — John 3:16',
     imageDataUrl: "",
     imageAlt: "Senior Pastor portrait",
     createdAt: "2026-04-01T08:00:00.000Z"
@@ -165,6 +165,46 @@ const DEFAULT_PROFILES = {
   }
 };
 
+const DEFAULT_SITE_CONTENT = {
+  pageTitle: "Grace Redemption Christian Assembly",
+  churchName: "Grace Redemption Christian Assembly",
+  logoMark: "GRCA",
+  heroBadge: "? Welcome to Our Family",
+  heroTitleLineOne: "Grace Redemption",
+  heroTitleLineTwo: "Christian Assembly",
+  heroTagline: '"Where Grace Meets Redemption — and Lives Are Transformed"',
+  heroPrimaryCtaText: "Join Us Sunday",
+  heroPrimaryCtaLabel: "Join Us Sunday",
+  leadershipLabel: "? Our Shepherds",
+  leadershipTitle: "Meet the Leadership",
+  leadershipSubtitle:
+    "Godly men and women committed to guiding our congregation with wisdom, grace, and the love of Christ.",
+  connectLabel: "? Stay Connected",
+  connectTitle: "Follow Us Online",
+  connectSubtitle:
+    "We're active across platforms — join the conversation, watch our sermons, and stay updated on everything God is doing here.",
+  facebookUrl: "https://www.facebook.com/share/1FRdzk1977/",
+  youtubeUrl: "",
+  instagramUrl: "",
+  tiktokUrl: "",
+  twitterUrl: "",
+  whatsappUrl: "https://wa.me/2347034450043",
+  footerBrandLineOne: "Grace",
+  footerBrandAccent: "Redemption",
+  footerBrandLineTwo: "Christian Assembly",
+  footerDescription:
+    '"Where Grace Meets Redemption — and Lives Are Transformed." Join us every Sunday as we worship, grow, and serve together.',
+  serviceSunday: "Sunday: 8:30 AM",
+  serviceWednesday: "Wednesday: 5:00 PM",
+  serviceSaturday: "Saturday: 6:30 AM",
+  serviceRehearsals: "Rehearsals: 2:00 PM",
+  contactAddress: "No. 1, imasuen street",
+  contactPhone: "+234 703 445 0043",
+  contactEmail: "graceredemptionchristis@gmail.com",
+  contactWebsiteUrl: "",
+  footerCopyright: ""
+};
+
 const EVENT_THEME_STYLES = {
   gold: "linear-gradient(90deg, #C9A84C, #E8C96A)",
   red: "linear-gradient(90deg, #8B1A1A, #C0392B)",
@@ -175,111 +215,139 @@ let revealObserver = null;
 let openLiveLinksBanner = null;
 let openMediaModal = null;
 
-const supabaseApi = window.GRCA_SUPABASE && window.GRCA_SUPABASE.api;
+const dataApi = window.GRCA_DATA && window.GRCA_DATA.api;
 const appState = {
   updates: [],
   profiles: {},
   events: [],
   liveLinks: [],
-  previousServices: []
+  previousServices: [],
+  siteContent: { ...DEFAULT_SITE_CONTENT }
 };
 
 async function ensureDefaultEvents() {
-  if (!supabaseApi) {
+  if (!dataApi) {
     appState.events = DEFAULT_EVENTS.slice();
     return;
   }
 
-  const existingEvents = await supabaseApi.listEvents();
+  const existingEvents = await dataApi.listEvents();
   if (existingEvents.length) {
     appState.events = existingEvents;
     return;
   }
 
-  await supabaseApi.saveEvents(DEFAULT_EVENTS);
-  appState.events = await supabaseApi.listEvents();
+  await dataApi.saveEvents(DEFAULT_EVENTS);
+  appState.events = await dataApi.listEvents();
 }
 
 async function ensureDefaultUpdates() {
-  if (!supabaseApi) {
+  if (!dataApi) {
     appState.updates = DEFAULT_UPDATES.slice();
     return;
   }
 
-  const existingUpdates = await supabaseApi.listUpdates();
+  const existingUpdates = await dataApi.listUpdates();
   if (existingUpdates.length) {
     appState.updates = existingUpdates;
     return;
   }
 
-  await Promise.all(DEFAULT_UPDATES.map((item) => supabaseApi.saveUpdate(item)));
-  appState.updates = await supabaseApi.listUpdates();
+  await Promise.all(DEFAULT_UPDATES.map((item) => dataApi.saveUpdate(item)));
+  appState.updates = await dataApi.listUpdates();
 }
 
 async function ensureDefaultPreviousServices() {
-  if (!supabaseApi) {
+  if (!dataApi) {
     appState.previousServices = DEFAULT_PREVIOUS_SERVICES.slice();
     return;
   }
 
-  const existingServices = await supabaseApi.listPreviousServices();
+  const existingServices = await dataApi.listPreviousServices();
   if (existingServices.length) {
     appState.previousServices = existingServices;
     return;
   }
 
-  await Promise.all(DEFAULT_PREVIOUS_SERVICES.map((item) => supabaseApi.savePreviousService(item)));
-  appState.previousServices = await supabaseApi.listPreviousServices();
+  await Promise.all(DEFAULT_PREVIOUS_SERVICES.map((item) => dataApi.savePreviousService(item)));
+  appState.previousServices = await dataApi.listPreviousServices();
 }
 
 async function ensureDefaultProfiles() {
-  if (!supabaseApi) {
+  if (!dataApi) {
     appState.profiles = { ...DEFAULT_PROFILES };
     return;
   }
 
-  const existingProfiles = await supabaseApi.listLeadershipProfiles();
+  const existingProfiles = await dataApi.listLeadershipProfiles();
   if (Object.keys(existingProfiles).length) {
     appState.profiles = existingProfiles;
     return;
   }
 
   await Promise.all(
-    Object.values(DEFAULT_PROFILES).map((item) => supabaseApi.saveLeadershipProfile(item))
+    Object.values(DEFAULT_PROFILES).map((item) => dataApi.saveLeadershipProfile(item))
   );
-  appState.profiles = await supabaseApi.listLeadershipProfiles();
+  appState.profiles = await dataApi.listLeadershipProfiles();
+}
+
+async function ensureDefaultSiteContent() {
+  if (!dataApi) {
+    appState.siteContent = { ...DEFAULT_SITE_CONTENT };
+    return;
+  }
+
+  const existingContent = await dataApi.getSiteContent();
+  if (existingContent && Object.keys(existingContent).length) {
+    appState.siteContent = { ...DEFAULT_SITE_CONTENT, ...existingContent };
+    return;
+  }
+
+  await dataApi.saveSiteContent(DEFAULT_SITE_CONTENT);
+  const savedContent = await dataApi.getSiteContent();
+  appState.siteContent = { ...DEFAULT_SITE_CONTENT, ...savedContent };
 }
 
 async function loadAppData() {
-  if (!supabaseApi) {
+  if (!dataApi) {
     appState.updates = DEFAULT_UPDATES.slice();
     appState.profiles = { ...DEFAULT_PROFILES };
     appState.events = DEFAULT_EVENTS.slice();
     appState.previousServices = DEFAULT_PREVIOUS_SERVICES.slice();
     appState.liveLinks = [];
+    appState.siteContent = { ...DEFAULT_SITE_CONTENT };
     return;
   }
 
-  const [updates, profiles, liveLinks, previousServices] = await Promise.all([
-    supabaseApi.listUpdates(),
-    supabaseApi.listLeadershipProfiles(),
-    supabaseApi.listLiveLinks(),
-    supabaseApi.listPreviousServices()
+  const [updates, profiles, liveLinks, previousServices, siteContent] = await Promise.all([
+    dataApi.listUpdates(),
+    dataApi.listLeadershipProfiles(),
+    dataApi.listLiveLinks(),
+    dataApi.listPreviousServices(),
+    dataApi.getSiteContent()
   ]);
 
   appState.updates = Array.isArray(updates) ? updates : [];
   appState.profiles = profiles && typeof profiles === "object" ? profiles : {};
   appState.liveLinks = Array.isArray(liveLinks) ? liveLinks : [];
   appState.previousServices = Array.isArray(previousServices) ? previousServices : [];
+  appState.siteContent = { ...DEFAULT_SITE_CONTENT, ...(siteContent || {}) };
 
   await ensureDefaultUpdates();
   await ensureDefaultProfiles();
   await ensureDefaultPreviousServices();
   await ensureDefaultEvents();
+  await ensureDefaultSiteContent();
 }
 
 function getLiveLinks() {
   return Array.isArray(appState.liveLinks) ? appState.liveLinks : [];
+}
+
+function getSiteContent() {
+  return appState.siteContent && typeof appState.siteContent === "object"
+    ? appState.siteContent
+    : { ...DEFAULT_SITE_CONTENT };
 }
 
 function getYouTubeEmbedUrl(rawUrl) {
@@ -555,7 +623,7 @@ function renderLiveNowSection() {
     setEmbedSource(player, "");
     playerWrap.classList.add("hidden");
     actions.innerHTML =
-      '<a href="#" class="btn-primary live-watch-link" data-live-active-text="WATCH LIVE â†’" data-live-inactive-text="COMING SOON">WATCH LIVE â†’</a>';
+      '<a href="#" class="btn-primary live-watch-link" data-live-active-text="WATCH LIVE ?" data-live-inactive-text="COMING SOON">WATCH LIVE ?</a>';
     return;
   }
 
@@ -576,9 +644,9 @@ function renderLiveNowSection() {
   const watchButton = document.createElement("a");
   watchButton.href = "#";
   watchButton.className = "btn-primary live-watch-link live-active";
-  watchButton.setAttribute("data-live-active-text", "WATCH LIVE â†’");
+  watchButton.setAttribute("data-live-active-text", "WATCH LIVE ?");
   watchButton.setAttribute("data-live-inactive-text", "COMING SOON");
-  watchButton.textContent = "WATCH LIVE â†’";
+  watchButton.textContent = "WATCH LIVE ?";
   actions.appendChild(watchButton);
 
   const externalButton = document.createElement("a");
@@ -783,7 +851,7 @@ function renderEvents() {
 
     const chip = document.createElement("div");
     chip.className = "event-date-chip";
-    chip.textContent = `â€¢ ${eventItem.dateLabel || "Date Coming Soon"}`;
+    chip.textContent = `• ${eventItem.dateLabel || "Date Coming Soon"}`;
 
     const title = document.createElement("h3");
     title.textContent = eventItem.title || "Church Event";
@@ -795,10 +863,10 @@ function renderEvents() {
     meta.className = "event-meta";
 
     const time = document.createElement("span");
-    time.textContent = `â€¢ ${eventItem.timeRange || "Time TBA"}`;
+    time.textContent = `• ${eventItem.timeRange || "Time TBA"}`;
 
     const location = document.createElement("span");
-    location.textContent = `â€¢ ${eventItem.location || "Location TBA"}`;
+    location.textContent = `• ${eventItem.location || "Location TBA"}`;
 
     meta.appendChild(time);
     meta.appendChild(location);
@@ -922,7 +990,7 @@ function renderPreviousServices() {
 
     const date = document.createElement("div");
     date.className = "previous-service-date";
-    date.textContent = `â€¢ ${formatServiceDate(service.serviceDate)}`;
+    date.textContent = `• ${formatServiceDate(service.serviceDate)}`;
 
     const title = document.createElement("h3");
     title.className = "previous-service-title";
@@ -1252,7 +1320,123 @@ function initNavbarScrollState() {
   window.addEventListener("scroll", syncNavState, { passive: true });
 }
 
+function applyLinkState(element, url, fallbackLabel) {
+  if (!element) {
+    return;
+  }
+
+  const hasUrl = typeof url === "string" && url.trim();
+  if (hasUrl) {
+    element.href = url.trim();
+    element.target = "_blank";
+    element.rel = "noopener noreferrer";
+    element.classList.remove("coming-soon-link");
+  } else {
+    element.href = "#";
+    element.removeAttribute("target");
+    element.removeAttribute("rel");
+    element.classList.add("coming-soon-link");
+    element.setAttribute("data-label", fallbackLabel);
+  }
+}
+
+function setOptionalText(element, value) {
+  if (!element) {
+    return;
+  }
+
+  const text = typeof value === "string" ? value.trim() : "";
+  element.textContent = text;
+  element.hidden = !text;
+}
+
+function applySiteContent() {
+  const content = getSiteContent();
+
+  if (content.pageTitle) {
+    document.title = content.pageTitle;
+  }
+
+  const navLogo = document.getElementById("nav-logo");
+  const navLogoText = document.getElementById("nav-logo-text");
+  const navLogoMark = document.getElementById("nav-logo-mark");
+  const heroBadge = document.getElementById("hero-badge");
+  const heroTitleLineOne = document.getElementById("hero-title-line-one");
+  const heroTitleLineTwo = document.getElementById("hero-title-line-two");
+  const heroTagline = document.getElementById("hero-tagline");
+  const heroPrimaryCta = document.getElementById("hero-primary-cta");
+  const leadershipLabel = document.getElementById("leadership-section-label");
+  const leadershipTitle = document.getElementById("leadership-section-title");
+  const leadershipSubtitle = document.getElementById("leadership-section-subtitle");
+  const connectLabel = document.getElementById("connect-section-label");
+  const connectTitle = document.getElementById("connect-section-title");
+  const connectSubtitle = document.getElementById("connect-section-subtitle");
+  const footerBrandHeading = document.getElementById("footer-brand-heading");
+  const footerBrandDescription = document.getElementById("footer-brand-description");
+  const serviceSunday = document.getElementById("service-time-sunday");
+  const serviceWednesday = document.getElementById("service-time-wednesday");
+  const serviceSaturday = document.getElementById("service-time-saturday");
+  const serviceRehearsals = document.getElementById("service-time-rehearsals");
+  const contactAddress = document.getElementById("contact-address");
+  const contactPhone = document.getElementById("contact-phone");
+  const contactEmail = document.getElementById("contact-email");
+  const contactWebsite = document.getElementById("contact-website");
+  const footerCopyright = document.getElementById("footer-copyright");
+
+  if (navLogo) {
+    navLogo.setAttribute("aria-label", content.churchName || DEFAULT_SITE_CONTENT.churchName);
+  }
+  if (navLogoText) navLogoText.textContent = content.churchName || DEFAULT_SITE_CONTENT.churchName;
+  if (navLogoMark) navLogoMark.textContent = content.logoMark || DEFAULT_SITE_CONTENT.logoMark;
+  if (heroBadge) heroBadge.textContent = content.heroBadge || DEFAULT_SITE_CONTENT.heroBadge;
+  if (heroTitleLineOne) heroTitleLineOne.textContent = content.heroTitleLineOne || DEFAULT_SITE_CONTENT.heroTitleLineOne;
+  if (heroTitleLineTwo) heroTitleLineTwo.textContent = content.heroTitleLineTwo || DEFAULT_SITE_CONTENT.heroTitleLineTwo;
+  if (heroTagline) heroTagline.textContent = content.heroTagline || DEFAULT_SITE_CONTENT.heroTagline;
+  if (heroPrimaryCta) {
+    heroPrimaryCta.textContent = content.heroPrimaryCtaText || DEFAULT_SITE_CONTENT.heroPrimaryCtaText;
+    heroPrimaryCta.setAttribute("data-label", content.heroPrimaryCtaLabel || DEFAULT_SITE_CONTENT.heroPrimaryCtaLabel);
+  }
+  if (leadershipLabel) leadershipLabel.textContent = content.leadershipLabel || DEFAULT_SITE_CONTENT.leadershipLabel;
+  if (leadershipTitle) leadershipTitle.textContent = content.leadershipTitle || DEFAULT_SITE_CONTENT.leadershipTitle;
+  if (leadershipSubtitle) leadershipSubtitle.textContent = content.leadershipSubtitle || DEFAULT_SITE_CONTENT.leadershipSubtitle;
+  if (connectLabel) connectLabel.textContent = content.connectLabel || DEFAULT_SITE_CONTENT.connectLabel;
+  if (connectTitle) connectTitle.textContent = content.connectTitle || DEFAULT_SITE_CONTENT.connectTitle;
+  if (connectSubtitle) connectSubtitle.textContent = content.connectSubtitle || DEFAULT_SITE_CONTENT.connectSubtitle;
+
+  if (footerBrandHeading) {
+    footerBrandHeading.innerHTML = `${content.footerBrandLineOne || DEFAULT_SITE_CONTENT.footerBrandLineOne} <span>${content.footerBrandAccent || DEFAULT_SITE_CONTENT.footerBrandAccent}</span><br>${content.footerBrandLineTwo || DEFAULT_SITE_CONTENT.footerBrandLineTwo}`;
+  }
+  if (footerBrandDescription) {
+    footerBrandDescription.textContent = content.footerDescription || DEFAULT_SITE_CONTENT.footerDescription;
+  }
+  if (serviceSunday) serviceSunday.textContent = DEFAULT_SITE_CONTENT.serviceSunday;
+  if (serviceWednesday) serviceWednesday.textContent = DEFAULT_SITE_CONTENT.serviceWednesday;
+  if (serviceSaturday) serviceSaturday.textContent = DEFAULT_SITE_CONTENT.serviceSaturday;
+  if (serviceRehearsals) serviceRehearsals.textContent = DEFAULT_SITE_CONTENT.serviceRehearsals;
+  setOptionalText(contactAddress, DEFAULT_SITE_CONTENT.contactAddress);
+  setOptionalText(contactPhone, DEFAULT_SITE_CONTENT.contactPhone);
+  setOptionalText(contactEmail, DEFAULT_SITE_CONTENT.contactEmail);
+  if (contactWebsite) {
+    const websiteItem = contactWebsite.closest("li");
+    const hasWebsite = typeof DEFAULT_SITE_CONTENT.contactWebsiteUrl === "string" && DEFAULT_SITE_CONTENT.contactWebsiteUrl.trim();
+    contactWebsite.textContent = "?? Website";
+    applyLinkState(contactWebsite, DEFAULT_SITE_CONTENT.contactWebsiteUrl, "Website");
+    if (websiteItem) {
+      websiteItem.hidden = !hasWebsite;
+    }
+  }
+  setOptionalText(footerCopyright, DEFAULT_SITE_CONTENT.footerCopyright);
+
+  applyLinkState(document.getElementById("social-facebook"), content.facebookUrl, "Facebook Page");
+  applyLinkState(document.getElementById("social-youtube"), content.youtubeUrl, "YouTube Page");
+  applyLinkState(document.getElementById("social-instagram"), content.instagramUrl, "Instagram Page");
+  applyLinkState(document.getElementById("social-tiktok"), content.tiktokUrl, "TikTok Page");
+  applyLinkState(document.getElementById("social-twitter"), content.twitterUrl, "X Page");
+  applyLinkState(document.getElementById("social-whatsapp"), content.whatsappUrl, "WhatsApp");
+}
+
 function rerenderApp() {
+  applySiteContent();
   renderEvents();
   renderLiveNowSection();
   renderPreviousServices();
@@ -1275,8 +1459,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   initProfileModal();
   initEventCardBulge();
 
-  if (supabaseApi) {
-    supabaseApi.subscribeToChanges(async () => {
+  if (dataApi) {
+    dataApi.subscribeToChanges(async () => {
       await loadAppData();
       rerenderApp();
     });
@@ -1287,6 +1471,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     rerenderApp();
   });
 });
+
 
 
 

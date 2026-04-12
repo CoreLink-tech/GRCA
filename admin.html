@@ -22,6 +22,83 @@
 
   <main class="admin-layout">
     <section class="panel">
+      <h2>Site Content</h2>
+      <p class="panel-note">Edit the homepage copy, footer details, and social/contact links used on the public site.</p>
+      <form id="site-content-form" class="admin-form">
+        <label>
+          Leadership Subtitle
+          <textarea id="site-leadership-subtitle" rows="3" placeholder="Describe the leadership section..."></textarea>
+        </label>
+        <div class="field-row">
+          <label>
+            Connect Label
+            <input type="text" id="site-connect-label" placeholder="✦ Stay Connected">
+          </label>
+          <label>
+            Connect Title
+            <input type="text" id="site-connect-title" placeholder="Follow Us Online">
+          </label>
+        </div>
+        <label>
+          Connect Subtitle
+          <textarea id="site-connect-subtitle" rows="3" placeholder="Describe your social and online presence..."></textarea>
+        </label>
+        <div class="field-row">
+          <label>
+            Facebook URL
+            <input type="url" id="site-facebook-url" placeholder="https://facebook.com/...">
+          </label>
+          <label>
+            YouTube URL
+            <input type="url" id="site-youtube-url" placeholder="https://youtube.com/...">
+          </label>
+        </div>
+        <div class="field-row">
+          <label>
+            Instagram URL
+            <input type="url" id="site-instagram-url" placeholder="https://instagram.com/...">
+          </label>
+          <label>
+            TikTok URL
+            <input type="url" id="site-tiktok-url" placeholder="https://tiktok.com/...">
+          </label>
+        </div>
+        <div class="field-row">
+          <label>
+            X / Twitter URL
+            <input type="url" id="site-twitter-url" placeholder="https://x.com/...">
+          </label>
+          <label>
+            WhatsApp URL
+            <input type="url" id="site-whatsapp-url" placeholder="https://wa.me/...">
+          </label>
+        </div>
+        <div class="field-row">
+          <label>
+            Footer Brand Line 1
+            <input type="text" id="site-footer-brand-line-one" placeholder="Grace">
+          </label>
+          <label>
+            Footer Brand Accent
+            <input type="text" id="site-footer-brand-accent" placeholder="Redemption">
+          </label>
+        </div>
+        <label>
+          Footer Brand Line 2
+          <input type="text" id="site-footer-brand-line-two" placeholder="Christian Assembly">
+        </label>
+        <label>
+          Footer Description
+          <textarea id="site-footer-description" rows="3" placeholder="Footer description..."></textarea>
+        </label>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save Site Content</button>
+        </div>
+      </form>
+      <p id="site-content-message" class="form-message" aria-live="polite"></p>
+    </section>
+
+    <section class="panel">
       <h2 id="update-form-title">Create Update</h2>
       <form id="update-form" class="admin-form">
         <label>
@@ -190,7 +267,7 @@
 
     <section class="panel">
       <h2>Leadership Profiles</h2>
-      <p class="panel-note">Upload pastor and executive images, then update their text from one place. Images are set to use the Supabase Storage bucket <strong>leadership-images</strong> when it is available.</p>
+      <p class="panel-note">Upload pastor and executive images, then update their text from one place.</p>
       <form id="leadership-form" class="admin-form">
         <label>
           Select Profile
@@ -297,8 +374,7 @@
     </section>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="SUPABASE.JS?v=20260408a"></script>
+<script src="LOCAL_DATA.JS"></script>
 <script src="ADMIN.JS?v=20260408a"></script>
 </body>
 </html>

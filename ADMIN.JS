@@ -1,4 +1,4 @@
-ï»¿const PROFILE_LABELS = {
+const PROFILE_LABELS = {
   senior_pastor: "Senior Pastor",
   assistant_1: "Assistant 1",
   assistant_2: "Assistant 2",
@@ -15,7 +15,7 @@ const DEFAULT_EVENTS = [
     title: "Sunday Worship Service",
     description:
       "Join us for an uplifting time of worship, prayer, and the Word of God. All are welcome - bring a friend!",
-    dateLabel: "Sunday, Feb 23 Â· 9:00 AM",
+    dateLabel: "Sunday, Feb 23 · 9:00 AM",
     timeRange: "9:00 AM - 12:00 PM",
     location: "Main Sanctuary",
     theme: "gold",
@@ -26,7 +26,7 @@ const DEFAULT_EVENTS = [
     title: "Midweek Prayer & Bible Study",
     description:
       "Deepen your faith and connect with the church family through prayer, fellowship, and in-depth scripture study.",
-    dateLabel: "Wednesday, Feb 26 Â· 6:00 PM",
+    dateLabel: "Wednesday, Feb 26 · 6:00 PM",
     timeRange: "6:00 PM - 8:00 PM",
     location: "Fellowship Hall",
     theme: "red",
@@ -37,7 +37,7 @@ const DEFAULT_EVENTS = [
     title: "Annual Church Thanksgiving & Convention",
     description:
       "A special gathering to celebrate God's faithfulness to Grace Redemption Christian Assembly. Guest ministers, music, and more.",
-    dateLabel: "Saturday, Mar 8 Â· 10:00 AM",
+    dateLabel: "Saturday, Mar 8 · 10:00 AM",
     timeRange: "10:00 AM - 6:00 PM",
     location: "Church Auditorium",
     theme: "blue",
@@ -92,7 +92,7 @@ const DEFAULT_PROFILES = {
     role: "Senior Pastor",
     name: "Pastor [Full Name]",
     bio: "A servant of God with a heart for the lost and a vision for community transformation. Replace this text with the Senior Pastor's biography, calling, and ministry vision.",
-    verse: '"For God so loved the world..." â€” John 3:16',
+    verse: '"For God so loved the world..." — John 3:16',
     imageDataUrl: "",
     imageAlt: "Senior Pastor portrait",
     createdAt: "2026-04-01T08:00:00.000Z"
@@ -176,6 +176,48 @@ const DEFAULT_PROFILES = {
   }
 };
 
+const DEFAULT_SITE_CONTENT = {
+  pageTitle: "Grace Redemption Christian Assembly",
+  churchName: "Grace Redemption Christian Assembly",
+  logoMark: "GRCA",
+  heroBadge: "? Welcome to Our Family",
+  heroTitleLineOne: "Grace Redemption",
+  heroTitleLineTwo: "Christian Assembly",
+  heroTagline: '"Where Grace Meets Redemption — and Lives Are Transformed"',
+  heroPrimaryCtaText: "Join Us Sunday",
+  heroPrimaryCtaLabel: "Join Us Sunday",
+  leadershipLabel: "? Our Shepherds",
+  leadershipTitle: "Meet the Leadership",
+  leadershipSubtitle:
+    "Godly men and women committed to guiding our congregation with wisdom, grace, and the love of Christ.",
+  connectLabel: "? Stay Connected",
+  connectTitle: "Follow Us Online",
+  connectSubtitle:
+    "We're active across platforms — join the conversation, watch our sermons, and stay updated on everything God is doing here.",
+  facebookUrl: "https://www.facebook.com/share/1FRdzk1977/",
+  youtubeUrl: "",
+  instagramUrl: "",
+  tiktokUrl: "",
+  twitterUrl: "",
+  whatsappUrl: "https://wa.me/2347034450043",
+  footerBrandLineOne: "Grace",
+  footerBrandAccent: "Redemption",
+  footerBrandLineTwo: "Christian Assembly",
+  footerDescription:
+    '"Where Grace Meets Redemption — and Lives Are Transformed." Join us every Sunday as we worship, grow, and serve together.',
+  serviceSunday: "Sunday: 8:30 AM",
+  serviceWednesday: "Wednesday: 5:00 PM",
+  serviceSaturday: "Saturday: 6:30 AM",
+  serviceRehearsals: "Rehearsals: 2:00 PM",
+  contactAddress: "No. 1, imasuen street",
+  contactPhone: "+234 703 445 0043",
+  contactEmail: "graceredemptionchristis@gmail.com",
+  contactWebsiteUrl: "",
+  footerCopyright: ""
+};
+
+const siteContentForm = document.getElementById("site-content-form");
+const siteContentMessage = document.getElementById("site-content-message");
 const form = document.getElementById("update-form");
 const message = document.getElementById("form-message");
 const list = document.getElementById("admin-updates-list");
@@ -237,13 +279,14 @@ let editingUpdateId = null;
 let editingEventId = null;
 let editingPreviousServiceId = null;
 
-const supabaseApi = window.GRCA_SUPABASE && window.GRCA_SUPABASE.api;
+const dataApi = window.GRCA_DATA && window.GRCA_DATA.api;
 const adminState = {
   updates: [],
   events: [],
   previousServices: [],
   liveLinks: [],
-  profiles: {}
+  profiles: {},
+  siteContent: { ...DEFAULT_SITE_CONTENT }
 };
 
 function generateId(prefix) {
@@ -255,97 +298,118 @@ function generateId(prefix) {
 }
 
 async function ensureDefaultEvents() {
-  if (!supabaseApi) {
+  if (!dataApi) {
     adminState.events = DEFAULT_EVENTS.slice();
     return;
   }
 
-  const existingEvents = await supabaseApi.listEvents();
+  const existingEvents = await dataApi.listEvents();
   if (existingEvents.length) {
     adminState.events = existingEvents;
     return;
   }
 
-  await supabaseApi.saveEvents(DEFAULT_EVENTS);
-  adminState.events = await supabaseApi.listEvents();
+  await dataApi.saveEvents(DEFAULT_EVENTS);
+  adminState.events = await dataApi.listEvents();
 }
 
 async function ensureDefaultUpdates() {
-  if (!supabaseApi) {
+  if (!dataApi) {
     adminState.updates = DEFAULT_UPDATES.slice();
     return;
   }
 
-  const existingUpdates = await supabaseApi.listUpdates();
+  const existingUpdates = await dataApi.listUpdates();
   if (existingUpdates.length) {
     adminState.updates = existingUpdates;
     return;
   }
 
-  await Promise.all(DEFAULT_UPDATES.map((item) => supabaseApi.saveUpdate(item)));
-  adminState.updates = await supabaseApi.listUpdates();
+  await Promise.all(DEFAULT_UPDATES.map((item) => dataApi.saveUpdate(item)));
+  adminState.updates = await dataApi.listUpdates();
 }
 
 async function ensureDefaultPreviousServices() {
-  if (!supabaseApi) {
+  if (!dataApi) {
     adminState.previousServices = DEFAULT_PREVIOUS_SERVICES.slice();
     return;
   }
 
-  const existingServices = await supabaseApi.listPreviousServices();
+  const existingServices = await dataApi.listPreviousServices();
   if (existingServices.length) {
     adminState.previousServices = existingServices;
     return;
   }
 
-  await Promise.all(DEFAULT_PREVIOUS_SERVICES.map((item) => supabaseApi.savePreviousService(item)));
-  adminState.previousServices = await supabaseApi.listPreviousServices();
+  await Promise.all(DEFAULT_PREVIOUS_SERVICES.map((item) => dataApi.savePreviousService(item)));
+  adminState.previousServices = await dataApi.listPreviousServices();
 }
 
 async function ensureDefaultProfiles() {
-  if (!supabaseApi) {
+  if (!dataApi) {
     adminState.profiles = { ...DEFAULT_PROFILES };
     return;
   }
 
-  const existingProfiles = await supabaseApi.listLeadershipProfiles();
+  const existingProfiles = await dataApi.listLeadershipProfiles();
   if (Object.keys(existingProfiles).length) {
     adminState.profiles = existingProfiles;
     return;
   }
 
   await Promise.all(
-    Object.values(DEFAULT_PROFILES).map((item) => supabaseApi.saveLeadershipProfile(item))
+    Object.values(DEFAULT_PROFILES).map((item) => dataApi.saveLeadershipProfile(item))
   );
-  adminState.profiles = await supabaseApi.listLeadershipProfiles();
+  adminState.profiles = await dataApi.listLeadershipProfiles();
+}
+
+async function ensureDefaultSiteContent() {
+  if (!dataApi) {
+    adminState.siteContent = { ...DEFAULT_SITE_CONTENT };
+    return;
+  }
+
+  const existingContent = await dataApi.getSiteContent();
+  if (existingContent && Object.keys(existingContent).length) {
+    adminState.siteContent = { ...DEFAULT_SITE_CONTENT, ...existingContent };
+    return;
+  }
+
+  await dataApi.saveSiteContent(DEFAULT_SITE_CONTENT);
+  const savedContent = await dataApi.getSiteContent();
+  adminState.siteContent = { ...DEFAULT_SITE_CONTENT, ...savedContent };
 }
 
 async function loadAdminData() {
-  if (!supabaseApi) {
+  if (!dataApi) {
     adminState.updates = DEFAULT_UPDATES.slice();
     adminState.previousServices = DEFAULT_PREVIOUS_SERVICES.slice();
     adminState.profiles = { ...DEFAULT_PROFILES };
     adminState.events = DEFAULT_EVENTS.slice();
     adminState.liveLinks = [];
+    adminState.siteContent = { ...DEFAULT_SITE_CONTENT };
     return;
   }
 
-  const [updates, previousServices, liveLinks, profiles] = await Promise.all([
-    supabaseApi.listUpdates(),
-    supabaseApi.listPreviousServices(),
-    supabaseApi.listLiveLinks(),
-    supabaseApi.listLeadershipProfiles()
+  const [updates, previousServices, liveLinks, profiles, siteContent] = await Promise.all([
+    dataApi.listUpdates(),
+    dataApi.listPreviousServices(),
+    dataApi.listLiveLinks(),
+    dataApi.listLeadershipProfiles(),
+    dataApi.getSiteContent()
   ]);
 
   adminState.updates = Array.isArray(updates) ? updates : [];
   adminState.previousServices = Array.isArray(previousServices) ? previousServices : [];
   adminState.liveLinks = Array.isArray(liveLinks) ? liveLinks : [];
   adminState.profiles = profiles && typeof profiles === "object" ? profiles : {};
+  adminState.siteContent = { ...DEFAULT_SITE_CONTENT, ...(siteContent || {}) };
 
   await ensureDefaultUpdates();
   await ensureDefaultPreviousServices();
   await ensureDefaultProfiles();
   await ensureDefaultEvents();
+  await ensureDefaultSiteContent();
 }
 
 function isCustomExecutiveId(profileId) {
@@ -357,22 +421,22 @@ function getUpdates() {
 }
 
 async function setUpdates(updates) {
-  if (!supabaseApi) {
+  if (!dataApi) {
     adminState.updates = Array.isArray(updates) ? updates : [];
     return;
   }
 
   adminState.updates = Array.isArray(updates) ? updates : [];
-  const existing = await supabaseApi.listUpdates();
+  const existing = await dataApi.listUpdates();
   const existingIds = new Set(existing.map((item) => item.id));
   const nextIds = new Set(adminState.updates.map((item) => item.id));
 
   await Promise.all(
-    adminState.updates.map((item) => supabaseApi.saveUpdate(item))
+    adminState.updates.map((item) => dataApi.saveUpdate(item))
   );
 
   await Promise.all(
-    [...existingIds].filter((id) => !nextIds.has(id)).map((id) => supabaseApi.deleteUpdate(id))
+    [...existingIds].filter((id) => !nextIds.has(id)).map((id) => dataApi.deleteUpdate(id))
   );
 }
 
@@ -381,22 +445,22 @@ function getEvents() {
 }
 
 async function setEvents(events) {
-  if (!supabaseApi) {
+  if (!dataApi) {
     adminState.events = Array.isArray(events) ? events : [];
     return;
   }
 
   adminState.events = Array.isArray(events) ? events : [];
-  const existing = await supabaseApi.listEvents();
+  const existing = await dataApi.listEvents();
   const existingIds = new Set(existing.map((item) => item.id));
   const nextIds = new Set(adminState.events.map((item) => item.id));
 
   await Promise.all(
-    adminState.events.map((item) => supabaseApi.saveEvent(item))
+    adminState.events.map((item) => dataApi.saveEvent(item))
   );
 
   await Promise.all(
-    [...existingIds].filter((id) => !nextIds.has(id)).map((id) => supabaseApi.deleteEvent(id))
+    [...existingIds].filter((id) => !nextIds.has(id)).map((id) => dataApi.deleteEvent(id))
   );
 }
 
@@ -405,22 +469,22 @@ function getPreviousServices() {
 }
 
 async function setPreviousServices(services) {
-  if (!supabaseApi) {
+  if (!dataApi) {
     adminState.previousServices = Array.isArray(services) ? services : [];
     return;
   }
 
   adminState.previousServices = Array.isArray(services) ? services : [];
-  const existing = await supabaseApi.listPreviousServices();
+  const existing = await dataApi.listPreviousServices();
   const existingIds = new Set(existing.map((item) => item.id));
   const nextIds = new Set(adminState.previousServices.map((item) => item.id));
 
   await Promise.all(
-    adminState.previousServices.map((item) => supabaseApi.savePreviousService(item))
+    adminState.previousServices.map((item) => dataApi.savePreviousService(item))
   );
 
   await Promise.all(
-    [...existingIds].filter((id) => !nextIds.has(id)).map((id) => supabaseApi.deletePreviousService(id))
+    [...existingIds].filter((id) => !nextIds.has(id)).map((id) => dataApi.deletePreviousService(id))
   );
 }
 
@@ -429,29 +493,29 @@ function getLiveLinks() {
 }
 
 async function setLiveLinks(links) {
-  if (!supabaseApi) {
+  if (!dataApi) {
     adminState.liveLinks = Array.isArray(links) ? links : [];
     return;
   }
 
   adminState.liveLinks = Array.isArray(links) ? links : [];
-  const existing = await supabaseApi.listLiveLinks();
+  const existing = await dataApi.listLiveLinks();
   const existingIds = new Set(existing.map((item) => item.id));
   const nextIds = new Set(adminState.liveLinks.map((item) => item.id));
 
   await Promise.all(
-    adminState.liveLinks.map((item) => supabaseApi.saveLiveLink(item))
+    adminState.liveLinks.map((item) => dataApi.saveLiveLink(item))
   );
 
   await Promise.all(
-    [...existingIds].filter((id) => !nextIds.has(id)).map((id) => supabaseApi.deleteLiveLink(id))
+    [...existingIds].filter((id) => !nextIds.has(id)).map((id) => dataApi.deleteLiveLink(id))
   );
 }
 
 async function removeStorage() {
   adminState.liveLinks = [];
-  if (supabaseApi) {
-    await supabaseApi.clearLiveLinks();
+  if (dataApi) {
+    await dataApi.clearLiveLinks();
   }
 }
 
@@ -460,25 +524,66 @@ function getProfiles() {
 }
 
 async function setProfiles(profiles) {
-  if (!supabaseApi) {
+  if (!dataApi) {
     adminState.profiles = profiles && typeof profiles === "object" ? profiles : {};
     return;
   }
 
   adminState.profiles = profiles && typeof profiles === "object" ? profiles : {};
-  const existing = await supabaseApi.listLeadershipProfiles();
+  const existing = await dataApi.listLeadershipProfiles();
   const existingIds = new Set(Object.keys(existing));
   const nextIds = new Set(Object.keys(adminState.profiles));
 
   await Promise.all(
     Object.entries(adminState.profiles).map(([id, item]) =>
-      supabaseApi.saveLeadershipProfile({ ...item, id })
+      dataApi.saveLeadershipProfile({ ...item, id })
     )
   );
 
   await Promise.all(
-    [...existingIds].filter((id) => !nextIds.has(id)).map((id) => supabaseApi.deleteLeadershipProfile(id))
+    [...existingIds].filter((id) => !nextIds.has(id)).map((id) => dataApi.deleteLeadershipProfile(id))
   );
+}
+
+function getSiteContent() {
+  return adminState.siteContent && typeof adminState.siteContent === "object"
+    ? adminState.siteContent
+    : { ...DEFAULT_SITE_CONTENT };
+}
+
+async function setSiteContent(content) {
+  adminState.siteContent = { ...DEFAULT_SITE_CONTENT, ...(content || {}) };
+  if (!dataApi) {
+    return;
+  }
+
+  await dataApi.saveSiteContent(adminState.siteContent);
+}
+
+function fillInputValue(id, value) {
+  const element = document.getElementById(id);
+  if (element) {
+    element.value = value || "";
+  }
+}
+
+function populateSiteContentForm() {
+  const content = getSiteContent();
+
+  fillInputValue("site-leadership-subtitle", content.leadershipSubtitle);
+  fillInputValue("site-connect-label", content.connectLabel);
+  fillInputValue("site-connect-title", content.connectTitle);
+  fillInputValue("site-connect-subtitle", content.connectSubtitle);
+  fillInputValue("site-facebook-url", content.facebookUrl);
+  fillInputValue("site-youtube-url", content.youtubeUrl);
+  fillInputValue("site-instagram-url", content.instagramUrl);
+  fillInputValue("site-tiktok-url", content.tiktokUrl);
+  fillInputValue("site-twitter-url", content.twitterUrl);
+  fillInputValue("site-whatsapp-url", content.whatsappUrl);
+  fillInputValue("site-footer-brand-line-one", content.footerBrandLineOne);
+  fillInputValue("site-footer-brand-accent", content.footerBrandAccent);
+  fillInputValue("site-footer-brand-line-two", content.footerBrandLineTwo);
+  fillInputValue("site-footer-description", content.footerDescription);
 }
 
 function setUpdateFormMode(isEditing) {
@@ -535,7 +640,7 @@ function resetPreviousServiceForm() {
 }
 
 function buildUpdateMeta(update) {
-  return [update.date || "", update.time || "", update.location || ""].filter(Boolean).join(" â€¢ ");
+  return [update.date || "", update.time || "", update.location || ""].filter(Boolean).join(" • ");
 }
 
 function renderUpdates() {
@@ -803,9 +908,9 @@ async function saveLeadershipImage(profileId, file) {
     };
   }
 
-  if (supabaseApi && typeof supabaseApi.uploadLeadershipImage === "function") {
+  if (dataApi && typeof dataApi.uploadLeadershipImage === "function") {
     try {
-      const uploaded = await supabaseApi.uploadLeadershipImage(profileId, file);
+      const uploaded = await dataApi.uploadLeadershipImage(profileId, file);
       if (uploaded && uploaded.url) {
         return {
           src: uploaded.url,
@@ -814,7 +919,7 @@ async function saveLeadershipImage(profileId, file) {
         };
       }
     } catch (error) {
-      console.error("Supabase Storage upload failed. Falling back to inline image storage.", error);
+      console.error("Image upload failed. Falling back to inline image storage.", error);
     }
   }
 
@@ -826,14 +931,14 @@ async function saveLeadershipImage(profileId, file) {
 }
 
 async function removeStoredLeadershipImage(imageSrc) {
-  if (!imageSrc || !supabaseApi || typeof supabaseApi.deleteLeadershipImageByUrl !== "function") {
+  if (!imageSrc || !dataApi || typeof dataApi.deleteLeadershipImageByUrl !== "function") {
     return;
   }
 
   try {
-    await supabaseApi.deleteLeadershipImageByUrl(imageSrc);
+    await dataApi.deleteLeadershipImageByUrl(imageSrc);
   } catch (error) {
-    console.error("Could not remove leadership image from Supabase Storage.", error);
+    console.error("Could not remove stored leadership image.", error);
   }
 }
 
@@ -961,7 +1066,7 @@ function renderLeadershipList() {
 
     const meta = document.createElement("p");
     meta.className = "leadership-item-meta";
-    meta.textContent = `${profile.role || "Role not set"} â€¢ ${profile.name || "Name not set"}`;
+    meta.textContent = `${profile.role || "Role not set"} • ${profile.name || "Name not set"}`;
 
     const actions = document.createElement("div");
     actions.className = "leadership-item-actions";
@@ -1510,9 +1615,9 @@ if (leadershipForm) {
       await setProfiles(profiles);
       ensureProfileOption(id, getProfileLabel(id, profiles[id]));
       leadershipMessage.textContent = imageSavedToBucket
-        ? "Leadership profile saved. Image uploaded to Supabase Storage."
+        ? "Leadership profile saved. Image stored successfully."
         : imageFellBackToInline
-          ? "Leadership profile saved. The image is working, but it fell back to inline storage because the Supabase bucket is not ready yet."
+          ? "Leadership profile saved. The image is working and was stored inline."
           : "Leadership profile saved.";
       populateLeadershipForm(id);
       renderLeadershipList();
@@ -1611,9 +1716,9 @@ if (newExecutiveForm) {
       populateLeadershipForm(id);
       newExecutiveForm.reset();
       newExecutiveMessage.textContent = imageSavedToBucket
-        ? "New executive created successfully. Image uploaded to Supabase Storage."
+        ? "New executive created successfully. Image stored successfully."
         : imageFellBackToInline
-          ? "New executive created successfully. The image fell back to inline storage because the Supabase bucket is not ready yet."
+          ? "New executive created successfully. The image was stored inline."
           : "New executive created successfully.";
     } catch (error) {
       newExecutiveMessage.textContent = "Failed to create executive.";
@@ -1621,7 +1726,36 @@ if (newExecutiveForm) {
   });
 }
 
+if (siteContentForm) {
+  siteContentForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const nextContent = {
+      leadershipSubtitle: document.getElementById("site-leadership-subtitle").value.trim(),
+      connectLabel: document.getElementById("site-connect-label").value.trim(),
+      connectTitle: document.getElementById("site-connect-title").value.trim(),
+      connectSubtitle: document.getElementById("site-connect-subtitle").value.trim(),
+      facebookUrl: document.getElementById("site-facebook-url").value.trim(),
+      youtubeUrl: document.getElementById("site-youtube-url").value.trim(),
+      instagramUrl: document.getElementById("site-instagram-url").value.trim(),
+      tiktokUrl: document.getElementById("site-tiktok-url").value.trim(),
+      twitterUrl: document.getElementById("site-twitter-url").value.trim(),
+      whatsappUrl: document.getElementById("site-whatsapp-url").value.trim(),
+      footerBrandLineOne: document.getElementById("site-footer-brand-line-one").value.trim(),
+      footerBrandAccent: document.getElementById("site-footer-brand-accent").value.trim(),
+      footerBrandLineTwo: document.getElementById("site-footer-brand-line-two").value.trim(),
+      footerDescription: document.getElementById("site-footer-description").value.trim()
+    };
+
+    await setSiteContent(nextContent);
+    if (siteContentMessage) {
+      siteContentMessage.textContent = "Site content saved successfully.";
+    }
+  });
+}
+
 function rerenderAdmin() {
+  populateSiteContentForm();
   renderUpdates();
   renderAdminEvents();
   renderLiveStatus();
@@ -1648,8 +1782,8 @@ async function initializeAdmin() {
   rerenderAdmin();
   initAdminLeadershipDropdown();
 
-  if (supabaseApi) {
-    supabaseApi.subscribeToChanges(async () => {
+  if (dataApi) {
+    dataApi.subscribeToChanges(async () => {
       await loadAdminData();
       rerenderAdmin();
     });
@@ -1657,6 +1791,8 @@ async function initializeAdmin() {
 }
 
 initializeAdmin();
+
+
 
 
 
