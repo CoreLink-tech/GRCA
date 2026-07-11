@@ -169,17 +169,17 @@ const DEFAULT_SITE_CONTENT = {
   pageTitle: "Grace Redemption Christian Assembly",
   churchName: "Grace Redemption Christian Assembly",
   logoMark: "GRCA",
-  heroBadge: "? Welcome to Our Family",
+  heroBadge: "Welcome to Our Family",
   heroTitleLineOne: "Grace Redemption",
   heroTitleLineTwo: "Christian Assembly",
   heroTagline: '"Where Grace Meets Redemption — and Lives Are Transformed"',
   heroPrimaryCtaText: "Join Us Sunday",
   heroPrimaryCtaLabel: "Join Us Sunday",
-  leadershipLabel: "? Our Shepherds",
+  leadershipLabel: "Our Shepherds",
   leadershipTitle: "Meet the Leadership",
   leadershipSubtitle:
     "Godly men and women committed to guiding our congregation with wisdom, grace, and the love of Christ.",
-  connectLabel: "? Stay Connected",
+  connectLabel: "Stay Connected",
   connectTitle: "Follow Us Online",
   connectSubtitle:
     "We're active across platforms — join the conversation, watch our sermons, and stay updated on everything God is doing here.",
@@ -1442,7 +1442,8 @@ function applySiteContent() {
   if (contactWebsite) {
     const websiteItem = contactWebsite.closest("li");
     const hasWebsite = typeof DEFAULT_SITE_CONTENT.contactWebsiteUrl === "string" && DEFAULT_SITE_CONTENT.contactWebsiteUrl.trim();
-    contactWebsite.textContent = "?? Website";
+    contactWebsite.innerHTML =
+      '<svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" stroke-linecap="round"/></svg> Website';
     applyLinkState(contactWebsite, DEFAULT_SITE_CONTENT.contactWebsiteUrl, "Website");
     if (websiteItem) {
       websiteItem.hidden = !hasWebsite;
