@@ -319,25 +319,48 @@ async function loadAppData() {
     return;
   }
 
-  const [updates, profiles, liveLinks, previousServices, siteContent] = await Promise.all([
-    dataApi.listUpdates(),
-    dataApi.listLeadershipProfiles(),
-    dataApi.listLiveLinks(),
-    dataApi.listPreviousServices(),
-    dataApi.getSiteContent()
-  ]);
+  try {
+    const [updates, profiles, liveLinks, previousServices, siteContent] = await Promise.all([
+      dataApi.listUpdates(),
+      dataApi.listLeadershipProfiles(),
+      dataApi.listLiveLinks(),
+      dataApi.listPreviousServices(),
+      dataApi.getSiteContent()
+    ]);
 
-  appState.updates = Array.isArray(updates) ? updates : [];
-  appState.profiles = profiles && typeof profiles === "object" ? profiles : {};
-  appState.liveLinks = Array.isArray(liveLinks) ? liveLinks : [];
-  appState.previousServices = Array.isArray(previousServices) ? previousServices : [];
-  appState.siteContent = { ...DEFAULT_SITE_CONTENT, ...(siteContent || {}) };
+    appState.updates = Array.isArray(updates) ? updates : [];
+    appState.profiles = profiles && typeof profiles === "object" ? profiles : {};
+    appState.liveLinks = Array.isArray(liveLinks) ? liveLinks : [];
+    appState.previousServices = Array.isArray(previousServices) ? previousServices : [];
+    appState.siteContent = { ...DEFAULT_SITE_CONTENT, ...(siteContent || {}) };
+  } catch (error) {
+    console.error("Failed to load data from Supabase, falling back to defaults.", error);
+    if (!appState.updates || !appState.updates.length) {
+      appState.updates = DEFAULT_UPDATES.slice();
+    }
+    if (!appState.profiles || !Object.keys(appState.profiles).length) {
+      appState.profiles = { ...DEFAULT_PROFILES };
+    }
+    if (!appState.events || !appState.events.length) {
+      appState.events = DEFAULT_EVENTS.slice();
+    }
+    if (!appState.previousServices || !appState.previousServices.length) {
+      appState.previousServices = DEFAULT_PREVIOUS_SERVICES.slice();
+    }
+    appState.liveLinks = appState.liveLinks || [];
+    appState.siteContent = { ...DEFAULT_SITE_CONTENT, ...(appState.siteContent || {}) };
+    return;
+  }
 
-  await ensureDefaultUpdates();
-  await ensureDefaultProfiles();
-  await ensureDefaultPreviousServices();
-  await ensureDefaultEvents();
-  await ensureDefaultSiteContent();
+  try {
+    await ensureDefaultUpdates();
+    await ensureDefaultProfiles();
+    await ensureDefaultPreviousServices();
+    await ensureDefaultEvents();
+    await ensureDefaultSiteContent();
+  } catch (error) {
+    console.error("Failed to seed default data into Supabase.", error);
+  }
 }
 
 function getLiveLinks() {
@@ -1446,30 +1469,50 @@ function rerenderApp() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  await loadAppData();
-  initScrollReveal();
-  initLeadershipDropdowns();
-  initComingSoonLinks();
-  initLiveLinksBanner();
-  initMediaModal();
-  initLiveWatchLinks();
-  initPreviousServiceWatchLinks();
-  initNavbarScrollState();
-  rerenderApp();
-  initProfileModal();
-  initEventCardBulge();
-
-  if (dataApi) {
-    dataApi.subscribeToChanges(async () => {
-      await loadAppData();
-      rerenderApp();
-    });
+  try {
+    await loadAppData();
+  } catch (error) {
+    console.error("loadAppData failed unexpectedly.", error);
   }
 
-  window.addEventListener("focus", async () => {
-    await loadAppData();
+  // Scroll reveal must always run so the page is never stuck invisible,
+  // even if data loading or a later init step throws.
+  initScrollReveal();
+
+  try {
+    initLeadershipDropdowns();
+    initComingSoonLinks();
+    initLiveLinksBanner();
+    initMediaModal();
+    initLiveWatchLinks();
+    initPreviousServiceWatchLinks();
+    initNavbarScrollState();
     rerenderApp();
-  });
+    initProfileModal();
+    initEventCardBulge();
+
+    if (dataApi) {
+      dataApi.subscribeToChanges(async () => {
+        try {
+          await loadAppData();
+          rerenderApp();
+        } catch (error) {
+          console.error("Failed to refresh data on change.", error);
+        }
+      });
+    }
+
+    window.addEventListener("focus", async () => {
+      try {
+        await loadAppData();
+        rerenderApp();
+      } catch (error) {
+        console.error("Failed to refresh data on focus.", error);
+      }
+    });
+  } catch (error) {
+    console.error("Page initialization failed.", error);
+  }
 });
 
 

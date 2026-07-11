@@ -391,25 +391,43 @@ async function loadAdminData() {
     return;
   }
 
-  const [updates, previousServices, liveLinks, profiles, siteContent] = await Promise.all([
-    dataApi.listUpdates(),
-    dataApi.listPreviousServices(),
-    dataApi.listLiveLinks(),
-    dataApi.listLeadershipProfiles(),
-    dataApi.getSiteContent()
-  ]);
+  try {
+    const [updates, previousServices, liveLinks, profiles, siteContent] = await Promise.all([
+      dataApi.listUpdates(),
+      dataApi.listPreviousServices(),
+      dataApi.listLiveLinks(),
+      dataApi.listLeadershipProfiles(),
+      dataApi.getSiteContent()
+    ]);
 
-  adminState.updates = Array.isArray(updates) ? updates : [];
-  adminState.previousServices = Array.isArray(previousServices) ? previousServices : [];
-  adminState.liveLinks = Array.isArray(liveLinks) ? liveLinks : [];
-  adminState.profiles = profiles && typeof profiles === "object" ? profiles : {};
-  adminState.siteContent = { ...DEFAULT_SITE_CONTENT, ...(siteContent || {}) };
+    adminState.updates = Array.isArray(updates) ? updates : [];
+    adminState.previousServices = Array.isArray(previousServices) ? previousServices : [];
+    adminState.liveLinks = Array.isArray(liveLinks) ? liveLinks : [];
+    adminState.profiles = profiles && typeof profiles === "object" ? profiles : {};
+    adminState.siteContent = { ...DEFAULT_SITE_CONTENT, ...(siteContent || {}) };
+  } catch (error) {
+    console.error("Failed to load admin data from Supabase.", error);
+    adminState.updates = adminState.updates && adminState.updates.length ? adminState.updates : DEFAULT_UPDATES.slice();
+    adminState.previousServices =
+      adminState.previousServices && adminState.previousServices.length
+        ? adminState.previousServices
+        : DEFAULT_PREVIOUS_SERVICES.slice();
+    adminState.liveLinks = adminState.liveLinks || [];
+    adminState.profiles =
+      adminState.profiles && Object.keys(adminState.profiles).length ? adminState.profiles : { ...DEFAULT_PROFILES };
+    adminState.siteContent = { ...DEFAULT_SITE_CONTENT, ...(adminState.siteContent || {}) };
+    return;
+  }
 
-  await ensureDefaultUpdates();
-  await ensureDefaultPreviousServices();
-  await ensureDefaultProfiles();
-  await ensureDefaultEvents();
-  await ensureDefaultSiteContent();
+  try {
+    await ensureDefaultUpdates();
+    await ensureDefaultPreviousServices();
+    await ensureDefaultProfiles();
+    await ensureDefaultEvents();
+    await ensureDefaultSiteContent();
+  } catch (error) {
+    console.error("Failed to seed default admin data into Supabase.", error);
+  }
 }
 
 function isCustomExecutiveId(profileId) {
@@ -1775,18 +1793,31 @@ function rerenderAdmin() {
 }
 
 async function initializeAdmin() {
-  await loadAdminData();
-  setUpdateFormMode(false);
-  setEventFormMode(false);
-  setPreviousServiceFormMode(false);
-  rerenderAdmin();
-  initAdminLeadershipDropdown();
+  try {
+    await loadAdminData();
+  } catch (error) {
+    console.error("initializeAdmin: loadAdminData failed unexpectedly.", error);
+  }
 
-  if (dataApi) {
-    dataApi.subscribeToChanges(async () => {
-      await loadAdminData();
-      rerenderAdmin();
-    });
+  try {
+    setUpdateFormMode(false);
+    setEventFormMode(false);
+    setPreviousServiceFormMode(false);
+    rerenderAdmin();
+    initAdminLeadershipDropdown();
+
+    if (dataApi) {
+      dataApi.subscribeToChanges(async () => {
+        try {
+          await loadAdminData();
+          rerenderAdmin();
+        } catch (error) {
+          console.error("Failed to refresh admin data on change.", error);
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Admin dashboard initialization failed.", error);
   }
 }
 
