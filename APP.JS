@@ -1419,10 +1419,20 @@ function applySiteContent() {
     heroPrimaryCta.textContent = content.heroPrimaryCtaText || DEFAULT_SITE_CONTENT.heroPrimaryCtaText;
     heroPrimaryCta.setAttribute("data-label", content.heroPrimaryCtaLabel || DEFAULT_SITE_CONTENT.heroPrimaryCtaLabel);
   }
-  if (leadershipLabel) leadershipLabel.textContent = content.leadershipLabel || DEFAULT_SITE_CONTENT.leadershipLabel;
+  if (leadershipLabel) {
+    const leadershipText = content.leadershipLabel || DEFAULT_SITE_CONTENT.leadershipLabel;
+    leadershipLabel.innerHTML =
+      '<svg class="label-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c.9 3.6 1.8 6.2 3.4 7.8 1.6 1.6 4.2 2.5 7.8 3.4-3.6.9-6.2 1.8-7.8 3.4-1.6 1.6-2.5 4.2-3.4 7.8-.9-3.6-1.8-6.2-3.4-7.8C7 15.2 4.4 14.3.8 13.4c3.6-.9 6.2-1.8 7.8-3.4C10.2 8.4 11.1 5.8 12 2z"/></svg> ' +
+      leadershipText;
+  }
   if (leadershipTitle) leadershipTitle.textContent = content.leadershipTitle || DEFAULT_SITE_CONTENT.leadershipTitle;
   if (leadershipSubtitle) leadershipSubtitle.textContent = content.leadershipSubtitle || DEFAULT_SITE_CONTENT.leadershipSubtitle;
-  if (connectLabel) connectLabel.textContent = content.connectLabel || DEFAULT_SITE_CONTENT.connectLabel;
+  if (connectLabel) {
+    const connectText = content.connectLabel || DEFAULT_SITE_CONTENT.connectLabel;
+    connectLabel.innerHTML =
+      '<svg class="label-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c.9 3.6 1.8 6.2 3.4 7.8 1.6 1.6 4.2 2.5 7.8 3.4-3.6.9-6.2 1.8-7.8 3.4-1.6 1.6-2.5 4.2-3.4 7.8-.9-3.6-1.8-6.2-3.4-7.8C7 15.2 4.4 14.3.8 13.4c3.6-.9 6.2-1.8 7.8-3.4C10.2 8.4 11.1 5.8 12 2z"/></svg> ' +
+      connectText;
+  }
   if (connectTitle) connectTitle.textContent = content.connectTitle || DEFAULT_SITE_CONTENT.connectTitle;
   if (connectSubtitle) connectSubtitle.textContent = content.connectSubtitle || DEFAULT_SITE_CONTENT.connectSubtitle;
 
