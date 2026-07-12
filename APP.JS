@@ -308,6 +308,57 @@ async function ensureDefaultSiteContent() {
   appState.siteContent = { ...DEFAULT_SITE_CONTENT, ...savedContent };
 }
 
+const CONTENT_CACHE_KEY = "grca_content_cache_v1";
+
+function readContentCache() {
+  try {
+    const raw = localStorage.getItem(CONTENT_CACHE_KEY);
+    if (!raw) {
+      return null;
+    }
+    return JSON.parse(raw);
+  } catch (error) {
+    console.error("Failed to read content cache.", error);
+    return null;
+  }
+}
+
+function writeContentCache() {
+  try {
+    localStorage.setItem(
+      CONTENT_CACHE_KEY,
+      JSON.stringify({
+        updates: appState.updates,
+        profiles: appState.profiles,
+        events: appState.events,
+        liveLinks: appState.liveLinks,
+        previousServices: appState.previousServices,
+        siteContent: appState.siteContent
+      })
+    );
+  } catch (error) {
+    console.error("Failed to write content cache.", error);
+  }
+}
+
+function hydrateFromCache() {
+  const cached = readContentCache();
+  if (!cached) {
+    return false;
+  }
+
+  if (Array.isArray(cached.updates)) appState.updates = cached.updates;
+  if (cached.profiles && typeof cached.profiles === "object") appState.profiles = cached.profiles;
+  if (Array.isArray(cached.events)) appState.events = cached.events;
+  if (Array.isArray(cached.liveLinks)) appState.liveLinks = cached.liveLinks;
+  if (Array.isArray(cached.previousServices)) appState.previousServices = cached.previousServices;
+  if (cached.siteContent && typeof cached.siteContent === "object") {
+    appState.siteContent = { ...DEFAULT_SITE_CONTENT, ...cached.siteContent };
+  }
+
+  return true;
+}
+
 async function loadAppData() {
   if (!dataApi) {
     appState.updates = DEFAULT_UPDATES.slice();
@@ -361,6 +412,8 @@ async function loadAppData() {
   } catch (error) {
     console.error("Failed to seed default data into Supabase.", error);
   }
+
+  writeContentCache();
 }
 
 function getLiveLinks() {
@@ -1480,11 +1533,9 @@ function rerenderApp() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    await loadAppData();
-  } catch (error) {
-    console.error("loadAppData failed unexpectedly.", error);
-  }
+  // Show the last-known real content immediately (if we have it cached from a
+  // previous visit) so the page never sits blank while Supabase responds.
+  const hadCache = hydrateFromCache();
 
   // Scroll reveal must always run so the page is never stuck invisible,
   // even if data loading or a later init step throws.
@@ -1498,9 +1549,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     initLiveWatchLinks();
     initPreviousServiceWatchLinks();
     initNavbarScrollState();
-    rerenderApp();
+    if (hadCache) {
+      rerenderApp();
+    }
     initProfileModal();
     initEventCardBulge();
+  } catch (error) {
+    console.error("Initial render from cache failed.", error);
+  }
+
+  try {
+    await loadAppData();
+  } catch (error) {
+    console.error("loadAppData failed unexpectedly.", error);
+  }
+
+  try {
+    rerenderApp();
 
     if (dataApi) {
       dataApi.subscribeToChanges(async () => {
